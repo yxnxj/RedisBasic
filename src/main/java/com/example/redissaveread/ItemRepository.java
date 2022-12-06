@@ -4,21 +4,25 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.concurrent.TimeUnit;
+import java.util.*;
 
 @Repository
 @RequiredArgsConstructor
 public class ItemRepository {
-    private final RedisTemplate<String, Object> redisTemplate;
-
+//    private final RedisTemplate<String, Object> redisTemplate;
+//    private final RedisTemplate<String, RedisTemplate<String, Object>> carts;
+    private final RedisTemplate<String, ItemDto> redisTemplate;
     public void addItem(ItemDto itemDto, Long memberId){
         String key = KeyGen.cartKeyGenerate(memberId);
-        redisTemplate.opsForValue().set(key, itemDto);
-        redisTemplate.expire(key, 60, TimeUnit.MINUTES);
+        List<ItemDto> items = findByMemberId(memberId);
+        items.add(itemDto);
+        redisTemplate.opsForList().rightPushAll(key, items);
     }
 
-    public ItemDto findByMemberId(Long memberId){
+    public List<ItemDto> findByMemberId(Long memberId){
         String key = KeyGen.cartKeyGenerate(memberId);
-        return (ItemDto) redisTemplate.opsForValue().get(key);
+        Long len = redisTemplate.opsForList().size(key);
+        return len == 0 ? new ArrayList<>() : redisTemplate.opsForList().range(key, 0, len-1);
     }
+
 }
