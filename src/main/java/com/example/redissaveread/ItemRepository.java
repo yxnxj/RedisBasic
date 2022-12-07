@@ -7,6 +7,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Repository
 @RequiredArgsConstructor
@@ -16,9 +17,11 @@ public class ItemRepository {
     private final RedisTemplate<String, ItemDto> redisTemplate;
     public void addItem(ItemDto itemDto, Long memberId){
         String key = KeyGen.cartKeyGenerate(memberId);
-        List<ItemDto> items = findByMemberId(memberId);
-        items.add(itemDto);
-        redisTemplate.opsForList().rightPushAll(key, items);
+//        List<ItemDto> items = findByMemberId(memberId);
+//        items.add(itemDto);
+//        redisTemplate.opsForList().rightPushAll(key, items);
+        redisTemplate.opsForList().rightPush(key, itemDto);
+//        redisTemplate.expire(key, 60, TimeUnit.SECONDS);
     }
 
     public List<ItemDto> findByMemberId(Long memberId){
