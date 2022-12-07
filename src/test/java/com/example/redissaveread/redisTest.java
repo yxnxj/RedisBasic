@@ -37,9 +37,10 @@ public class redisTest {
     @Test//882
     public void test_readAll(){
         long startTime = System.currentTimeMillis();
-        itemRepository.findByMemberId(1l);
+        List<ItemDto> items = itemRepository.findByMemberId(1l);
 
         long endTime = System.currentTimeMillis();
-        System.out.println(String.format("pipeline 조회 시간 : %20dms", endTime - startTime));
+        System.out.println(String.format("items 총 갯수 : %d개",items.size()));
+        System.out.println(String.format("pipeline 조회 시간 : %dms", endTime - startTime));
     }
 }
